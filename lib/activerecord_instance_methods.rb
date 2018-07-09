@@ -20,7 +20,7 @@ module DraftPunk
       # Which attributes of this model are published from the draft to the approved object. Overwrite in model
       # if you don't want all attributes of the draft to be saved on the live object.
       #
-      # This is an array of attributes (including has_one association id columns) which will be saved 
+      # This is an array of attributes (including has_one association id columns) which will be saved
       # on the object when its' draft is approved.
       #
       # For instance, if you want to omit updated_at, for whatever reason, you would define this in your model:
@@ -52,13 +52,13 @@ module DraftPunk
 
 
       # Updates the approved version with any changes on the draft, and all the drafts' associated objects.
-      # 
+      #
       # If the approved version changes_require_approval? returns false, this method exits early and does nothing
       # to the approved version.
       #
       # THE DRAFT VERSION IS DESTROYED IN THIS PROCESS. To generate a new draft, simply call <tt>editable_version</tt>
       # again on the approved object.
-      # 
+      #
       # @return [ActiveRecord Object] updated version of the approved object
       def publish_draft! skip_destroy: false
         @live_version  = get_approved_version
@@ -68,7 +68,9 @@ module DraftPunk
         transaction do
           save_attribute_changes_and_belongs_to_assocations_from_draft
           update_has_many_and_has_one_associations_from_draft
-          @live_version.draft.destroy unless skip_destroy # We have to do this since we moved all the draft's has_many associations to @live_version. If you call "editable_version" later, it'll build the draft.
+          # We have to destroy the draft this since we moved all the draft's has_many associations to @live_version. If you call "editable_version" later, it'll build the draft.
+          # We destroy_all in case extra drafts are in the database. Extra drafts can potentially be created due to race conditions in the application.
+          self.class.unscoped.where(approved_version_id: @live_version.id).destroy_all unless skip_destroy
         end
         @live_version = self.class.find(@live_version.id)
       end
