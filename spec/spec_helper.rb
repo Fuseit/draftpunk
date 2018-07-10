@@ -1,4 +1,5 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'pry-byebug'
 require 'active_record'
 require 'action_view'
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")

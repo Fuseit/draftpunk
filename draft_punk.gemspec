@@ -31,7 +31,7 @@ EOF
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency     "amoeba",    "~> 3.0"
+  # spec.add_runtime_dependency     "amoeba",    "~> 3.1"
   spec.add_runtime_dependency     "unscoped_associations", "< 1.0"
   spec.add_runtime_dependency     "differ",    "< 0.2"
   spec.add_runtime_dependency     'rails',     "> 3.0", "< 5.1"
@@ -41,5 +41,6 @@ EOF
   spec.add_development_dependency "rspec",     "~> 2.0"
   spec.add_development_dependency "sqlite3",   "~> 1.0"
   spec.add_development_dependency "yard",      "< 1.0"
+  spec.add_development_dependency "pry-byebug", "~> 3.6.0"
 
 end

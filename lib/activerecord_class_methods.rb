@@ -8,7 +8,7 @@ module DraftPunk
       # thus does not need to be explicity called on its associated models (and will error if you try).
       #
       # This model must have an approved_version_id column (Integer), which will be used to track its draft
-      # 
+      #
       # For instance, your Business model:
       #  class Business << ActiveRecord::Base
       #    has_many :employees
@@ -21,7 +21,7 @@ module DraftPunk
       #
       # Optionally, specify which associations which the user will edit - associations which should have a draft created
       # by defining a CREATES_NESTED_DRAFTS_FOR constant for this model.
-      #  
+      #
       #  CREATES_NESTED_DRAFTS_FOR = [:address] # When creating a business's draft, only :address will have drafts created
       #
       # To disable drafts for all assocations for this model, simply pass an empty array:
@@ -35,7 +35,7 @@ module DraftPunk
       #
       # If you want your draft associations to track their live version, add an :approved_version_id column
       # to each association's table. You'll be able to access that associated object's live version, just
-      # like you can with the original model which called requires_approval. 
+      # like you can with the original model which called requires_approval.
       #
       # @param nullify [Array] A list of attributes on this model to set to null on the draft when it is created. For
       #    instance, the _id_ and _created_at_ columns are nullified by default, since you don't want Rails to try to
@@ -126,11 +126,10 @@ module DraftPunk
         associations = target_class.set_valid_associations(associations)
         target_class.amoeba do
           enable
-          include_association target_class.const_get(:DRAFT_VALID_ASSOCIATIONS)
+          include_associations target_class.const_get(:DRAFT_VALID_ASSOCIATIONS)
           customize target_class.set_approved_version_id_callback
         end
         target_class.const_set :DRAFT_PUNK_IS_SETUP, true
-
         setup_associations_and_scopes_for target_class, set_default_scope: set_default_scope
         setup_draft_association_persistance_for_children_of target_class, associations
       end

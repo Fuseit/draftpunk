@@ -94,14 +94,14 @@ module DraftPunk
     protected #################################################################
 
       def get_draft
-        draft || create_draft_version
+        reload_draft || create_draft_version
       end
 
     private ####################################################################
 
       def create_draft_version
         # Don't call this directly. Use editable_version instead.
-        return draft if draft.present?
+        return reload_draft if reload_draft.present?
         dupe = amoeba_dup
         begin
           dupe.approved_version = self
@@ -111,7 +111,7 @@ module DraftPunk
         rescue => message
           raise DraftCreationError, message
         end
-        draft
+        reload_draft
       end
 
       def save_attribute_changes_and_belongs_to_assocations_from_draft

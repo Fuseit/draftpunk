@@ -38,7 +38,7 @@ describe DraftPunk::Model::ActiveRecordClassMethods do
 
     context :setup do
       it 'has a house with two rooms and a permit' do
-        h = House.first 
+        h = House.first
         h.should == @house
         h.rooms.count.should be(2)
         h.rooms.pluck(:name).sort.should == ['Entryway', 'Living Room']
