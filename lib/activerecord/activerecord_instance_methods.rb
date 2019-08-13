@@ -9,7 +9,7 @@ module DraftPunk
       # Which attributes of this model are published from the draft to the approved object. Overwrite in model
       # if you don't want all attributes of the draft to be saved on the live object.
       #
-      # This is an array of attributes (including has_one association id columns) which will be saved 
+      # This is an array of attributes (including has_one association id columns) which will be saved
       # on the object when its' draft is approved.
       #
       # For instance, if you want to omit updated_at, for whatever reason, you would define this in your model:
@@ -41,21 +41,26 @@ module DraftPunk
       def after_create_draft
       end
 
+      # Evaluates before the draft is created.
+      # Override in your model to implement custom behavior.
+      def before_create_draft
+      end
+
       #############################
       # END CONFIGURABLE METHODS
       #############################
 
 
       # Updates the approved version with any changes on the draft, and all the drafts' associated objects.
-      # 
+      #
       # If the approved version changes_require_approval? returns false, this method exits early and does nothing
       # to the approved version.
       #
       # THE DRAFT VERSION IS DESTROYED IN THIS PROCESS. To generate a new draft, simply call <tt>editable_version</tt>
       # again on the approved object.
-      # 
+      #
       # @return [ActiveRecord Object] updated version of the approved object
-      def publish_draft!
+      def publish_draft! skip_destroy: false
         @live_version  = get_approved_version
         @draft_version = editable_version
         return unless changes_require_approval? && @draft_version.is_draft? # No-op. ie. the live version is in a state that doesn't require approval.
@@ -67,7 +72,7 @@ module DraftPunk
             update_has_many_and_has_one_associations_from_draft
             # We have to destroy the draft this since we moved all the draft's has_many associations to @live_version. If you call "editable_version" later, it'll build the draft.
             # We destroy_all in case extra drafts are in the database. Extra drafts can potentially be created due to race conditions in the application.
-            self.class.unscoped.where(approved_version_id: @live_version.id).destroy_all
+            self.class.unscoped.where(approved_version_id: @live_version.id).destroy_all unless skip_destroy
           ensure
             @live_version.remove_instance_variable :@publishing_draft
           end
@@ -113,6 +118,7 @@ module DraftPunk
         dupe = amoeba_dup
         begin
           dupe.approved_version = self
+          dupe.before_create_draft
           dupe.save(validate: false)
           dupe.after_create_draft
         rescue => message
